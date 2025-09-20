@@ -1,0 +1,49 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.13
+    commands:
+      - echo "Installing Docker and dependencies"
+      - yum update -y
+      - yum install -y docker
+      - usermod -aG docker $USER || true
+      - echo "Installing Poetry"
+      - curl -sSL https://install.python-poetry.org | python3 -
+      - export PATH="$HOME/.local/bin:$PATH"
+      - poetry config virtualenvs.create false
+      - poetry add redis
+      - poetry install --no-interaction --no-ansi
+  pre_build:
+    commands:
+      - echo "Running unit tests directly in CodeBuild"
+      - poetry run pytest -v
+      - echo "Logging in to Amazon ECR"
+      - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com
+  build:
+    commands:
+      - echo "Building Docker image"
+      - docker build -t saving-placement-${PROJET_ENV}:latest .
+      - echo "Tagging image"
+      - docker tag saving-placement-${PROJET_ENV}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/saving-placement-${PROJET_ENV}:latest
+      - echo "Pushing image"
+      - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/saving-placement-${PROJET_ENV}:latest
+
+  post_build:
+    commands:
+      - echo "Running Alembic migrations"
+      - |
+        docker run --rm \
+          -e DB_DRIVER_ASYNC=$DB_DRIVER_ASYNC \
+          -e DB_DRIVER=$DB_DRIVER \
+          -e DB_USER=$DB_USER \
+          -e DB_PASSWORD=$DB_PASSWORD \
+          -e DB_HOST=$DB_HOST \
+          -e DB_PORT=$DB_PORT \
+          -e DB_NAME=$DB_NAME \
+          ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/saving-placement-${PROJET_ENV}:latest \
+          migrate
+
+      
+

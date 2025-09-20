@@ -1,0 +1,7 @@
+.env
+README.md
+scaffold.py
+.vscode/
+.idea/
+venv/
+__pycache__/

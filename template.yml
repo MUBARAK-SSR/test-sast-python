@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Python serverless template
+
+Globals:
+  Function:
+    Timeout: 15
+    Runtime: python3.12
+    Architectures:
+      - x86_64
+    MemorySize: 256
+
+Resources:
+  BasePythonAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      Auth:
+        ApiKeyRequired: false 
+      DefinitionBody:
+      
+  PythonPackagesSharedLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: ./dependencies-layer
+      Description: Shared python packages dependencies
+      LayerName: python-dependencies-layer
+      CompatibleArchitectures: 
+        - x86_64
+        - arm64
+      CompatibleRuntimes:
+        - python3.10
+        - python3.11
+        - python3.12
+  CommonSharedLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: ./common-layer
+      Description: Shared common dependencies
+      LayerName: common-layer
+      CompatibleArchitectures: 
+        - x86_64
+        - arm64
+      CompatibleRuntimes:
+        - python3.10
+        - python3.11
+        - python3.12
+  CountriesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: sygalin-base-python-countries
+      Handler: apps.main.handler
+      CodeUri: ./app/services/countries/
+      Layers:
+        - !Ref PythonPackagesSharedLayer
+        - !Ref CommonSharedLayer
+      Environment:
+        Variables:
+          ENV_MODE: dev
+          SECRET_KEYS: EMAIL_API_KEYS
+          SECRET_MANAGER_REGION: us-west-2
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BasePythonAPI
+            Path: /countries/{proxy+}
+            Method: ANY
+  WelcomeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: sygalin-base-python-welcome
+      Handler: apps.main.handler
+      CodeUri: ./app/services/welcome/
+      Layers:
+        - !Ref PythonPackagesSharedLayer
+        - !Ref CommonSharedLayer
+      Environment:
+        Variables:
+          ENV_MODE: dev
+          SECRET_KEYS: EMAIL_API_KEYS
+          SECRET_MANAGER_REGION: us-west-2
+      Events:
+        HelloRoute:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BasePythonAPI
+            Path: /welcome
+            Method: GET
+        DescribeRoute:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BasePythonAPI
+            Path: /welcome/describe-me
+            Method: POST
+
