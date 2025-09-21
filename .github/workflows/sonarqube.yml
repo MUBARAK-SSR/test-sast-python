@@ -39,8 +39,16 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Check Quality Gate
         run: |
-          status=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/qualitygates/project_status?projectKey=test-sast-python" | jq -r '.projectStatus.status')
-          echo "Quality Gate status: $status"
+          echo "Waiting for Quality Gate..."
+          for i in {1..10}; do
+            status=$(curl -s -u $SONAR_TOKEN: "http://<EC2_PUBLIC_IP>:9000/api/qualitygates/project_status?projectKey=test-sast-python" | jq -r '.projectStatus.status')
+            echo "Attempt $i: Quality Gate status = $status"
+            if [ "$status" != "IN_PROGRESS" ]; then
+              break
+            fi
+            sleep 5
+          done
+
           if [ "$status" != "OK" ]; then
             echo "Quality Gate failed! Stopping pipeline."
             exit 1
