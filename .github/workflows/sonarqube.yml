@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install httpx pytest pytest-cov sqlalchemy alembic psycopg2-binary
+          pip install httpx pytest pytest-cov sqlalchemy alembic psycopg2-binary dotenv
 
       - name: Run tests with coverage
         run: |
