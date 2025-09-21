@@ -27,7 +27,6 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pip install pytest pytest-cov
           pytest --maxfail=1 --disable-warnings -q --cov=.
 
       - name: Run SonarQube Scanner
