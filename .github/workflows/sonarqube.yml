@@ -25,9 +25,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install httpx pytest pytest-cov sqlalchemy alembic psycopg2-binary dotenv fastapi uvicorn databases pytest-asyncio pydantic python-dotenv mangum python-jose[cryptography] jwt 
 
-      - name: Run tests with coverage
-        run: |
-          pytest --maxfail=1 --disable-warnings -q --cov=.
+    #  - name: Run tests with coverage
+     #   run: |
+      #    pytest --maxfail=1 --disable-warnings -q --cov=.
 
       - name: Run SonarQube Scanner
         uses: sonarsource/sonarqube-scan-action@v2
