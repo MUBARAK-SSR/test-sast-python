@@ -41,12 +41,12 @@ jobs:
         run: |
           echo "Waiting for Quality Gate..."
           for i in {1..10}; do
-            status=$(curl -s -u $SONAR_TOKEN: "http://<EC2_PUBLIC_IP>:9000/api/qualitygates/project_status?projectKey=test-sast-python" | jq -r '.projectStatus.status')
+            sleep 5
+            status=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/qualitygates/project_status?projectKey=test-sast-python" | jq -r '.projectStatus.status')
             echo "Attempt $i: Quality Gate status = $status"
             if [ "$status" != "IN_PROGRESS" ]; then
               break
             fi
-            sleep 5
           done
 
           if [ "$status" != "OK" ]; then

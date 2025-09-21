@@ -52,6 +52,6 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
     return {"message": "Access granted", "token": token}
 
 
-def buggy_function():
-    x = 1 / 0  # Division by zero
+""" def buggy_function():
+    x = 1 / 0  # Division by zero """
 
