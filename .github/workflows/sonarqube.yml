@@ -37,3 +37,13 @@ jobs:
             -Dsonar.host.url=http://35.92.216.5:9000
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Check Quality Gate
+        run: |
+          status=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/qualitygates/project_status?projectKey=test-sast-python" | jq -r '.projectStatus.status')
+          echo "Quality Gate status: $status"
+          if [ "$status" != "OK" ]; then
+            echo "Quality Gate failed! Stopping pipeline."
+            exit 1
+          fi
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
