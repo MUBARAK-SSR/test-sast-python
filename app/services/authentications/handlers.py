@@ -53,3 +53,5 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
 
 def example():
     x = 42  # unused variable
+    PASSWORD = "123456"  # security hotspot
+    print(PASSWORD)
