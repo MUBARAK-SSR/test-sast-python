@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install httpx pytest pytest-cov sqlalchemy alembic psycopg2-binary dotenv fastapi uvicorn databases pytest-asyncio pydantic python-dotenv mangum python-jose[cryptography] jwt 
+      #    pip install httpx pytest pytest-cov sqlalchemy alembic psycopg2-binary dotenv fastapi uvicorn databases pytest-asyncio pydantic python-dotenv mangum python-jose[cryptography] jwt 
 
     #  - name: Run tests with coverage
      #   run: |
@@ -50,7 +50,8 @@ jobs:
           done
 
           if [ "$status" != "OK" ]; then
-            echo "Quality Gate failed! Stopping pipeline."
+            echo "Quality Gate failed! Here are the failing conditions:"
+            echo "$result" | jq -r '.projectStatus.conditions[] | select(.status=="ERROR") | "- Metric: \(.metricKey), Value: \(.actualValue), Threshold: \(.comparator) \(.errorThreshold)"'
             exit 1
           fi
         env:
