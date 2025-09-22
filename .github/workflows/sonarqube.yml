@@ -52,8 +52,22 @@ jobs:
           if [ "$status" != "OK" ]; then
             echo "Quality Gate failed! Here are the failing conditions:"
             echo "Fetching detailed Quality Gate conditions..."
-            result=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/qualitygates/project_status?projectKey=test-sast-python")
-            echo "$result"  | jq -r '.projectStatus.conditions[] | select(.status=="ERROR") | "- Metric: \(.metricKey), Value: \(.actualValue), Threshold: \(.comparator) \(.errorThreshold)"'
+            issues=$(curl -s -u $SONAR_TOKEN: "http://<EC2_PUBLIC_IP>:9000/api/issues/search?componentKeys=test-sast-python&types=BUG,VULNERABILITY,CODE_SMELL")
+
+            echo "$issues" | jq -r '
+              .issues[] |
+              "File: \(.component | split(\":\")[1])\nLine: \(.line)\nRule: \(.rule)\nMessage: \(.message)\nEffort: \(.effort)\nSeverity: \(.severity)\nType: \(.type)\n---"
+            '
+
+            echo "Fetching rule details for each issue..."
+            for rule in $(echo "$issues" | jq -r '.issues[].rule' | sort -u); do
+              rule_info=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/rules/show?key=$rule")
+              desc=$(echo "$rule_info" | jq -r '.rule.htmlDesc' | sed "s/<[^>]*>//g" | head -n 5)
+              echo "Rule $rule:"
+              echo "$desc"
+              echo "---"
+            done
+
             exit 1
           fi
         env:
