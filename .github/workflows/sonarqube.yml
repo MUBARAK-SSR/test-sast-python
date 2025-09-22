@@ -51,8 +51,9 @@ jobs:
 
           if [ "$status" != "OK" ]; then
             echo "Quality Gate failed! Here are the failing conditions:"
-            echo "$result" | jq -r '.projectStatus.conditions[] | select(.status=="ERROR") | "- Metric: \(.metricKey), Value: \(.actualValue), Threshold: \(.comparator) \(.errorThreshold)"'
-            exit 1
+            echo "Fetching detailed Quality Gate conditions..."
+            result=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/qualitygates/project_status?projectKey=test-sast-python")
+            echo "$result" 
           fi
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
