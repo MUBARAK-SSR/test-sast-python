@@ -56,8 +56,9 @@ jobs:
 
             echo "$issues" | jq -r '
               .issues[] |
-              "File: \(.component | split(\\":\\")[1])\nLine: \(.line // "N/A")\nRule: \(.rule)\nMessage: \(.message)\nEffort: \(.effort // "N/A")\nSeverity: \(.severity)\nType: \(.type)\n---"
+              "File: \(.component | split(\":\")[1])\nLine: \(.line // '\''N/A'\'')\nRule: \(.rule)\nMessage: \(.message)\nEffort: \(.effort // '\''N/A'\'')\nSeverity: \(.severity)\nType: \(.type)\n---"
             '
+
 
             echo "Fetching rule details for each issue..."
             for rule in $(echo "$issues" | jq -r '.issues[].rule' | sort -u); do
