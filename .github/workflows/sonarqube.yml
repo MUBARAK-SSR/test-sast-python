@@ -52,7 +52,7 @@ jobs:
           if [ "$status" != "OK" ]; then
             echo "Quality Gate failed! Here are the failing conditions:"
             echo "Fetching detailed Quality Gate conditions..."
-            issues=$(curl -s -u $SONAR_TOKEN: "http://<EC2_PUBLIC_IP>:9000/api/issues/search?componentKeys=test-sast-python&types=BUG,VULNERABILITY,CODE_SMELL")
+            issues=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/issues/search?componentKeys=test-sast-python&types=BUG,VULNERABILITY,CODE_SMELL")
 
             echo "$issues" | jq -r '
               .issues[] |
