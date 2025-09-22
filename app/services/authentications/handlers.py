@@ -53,4 +53,8 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
 
 def buggy_function():
     x = 1 / 0  # Division by zero
-    return x
+def add(a, b):
+    return a + b
+
+def sum_numbers(a, b):
+    return a + b  # duplication du code
