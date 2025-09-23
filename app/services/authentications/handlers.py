@@ -9,27 +9,6 @@ from app.common.models.SubClientUser import SubClientUser
 from app.common.models.User import User
 from app.services.authentications.schemas import AuthenticationBase
 from app.common.auth import JWTBearer
-import pickle
-import subprocess
-import requests
-
-def fetch(url):
-    #possible SSRF if url comes from user input
-    return requests.get(url).text
-
-def run_cmd(user_input):
-    #command injection risk
-    subprocess.call(f"cat {user_input}", shell=True)
-
-def load_object(data):
-    #insecure: deserializing untrusted data
-    return pickle.loads(data)
-
-def find_user(conn, user_id):
-    #vulnerable - SQL injection
-    query = f"SELECT * FROM users WHERE id = {user_id}"
-    return conn.execute(query).fetchall()
-
 
 async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
 
