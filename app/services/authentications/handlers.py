@@ -52,9 +52,9 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
     return {"message": "Access granted", "token": token}
 
 def get_user_profile():
-    user_input = input("username: ")
-    # VULN: SQL concatenation (do NOT execute)
-    query = "SELECT * FROM users WHERE username = '" + user_input + "';"
-    conn = sqlite3.connect(':memory:')
-    cursor = conn.cursor()
-    cursor.execute(query) 
+    # VULN: hard-coded credentials
+    ADMIN_USER = "admin"
+    ADMIN_PASS = "changeme123"
+    def check_login(u, p):
+        return u == ADMIN_USER and p == ADMIN_PASS
+
