@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
+import sqlite3
 
 from app.common.models.Cycle import Cycle
 from app.common.models.SubClientUser import SubClientUser
@@ -50,6 +51,10 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
 
     return {"message": "Access granted", "token": token}
 
-def get_user_profile(user_id):
-    #no check that request.user has rights to read user_id
-    return db.get_user(user_id)
+def get_user_profile():
+    user_input = input("username: ")
+    # VULN: SQL concatenation (do NOT execute)
+    query = "SELECT * FROM users WHERE username = '" + user_input + "';"
+    conn = sqlite3.connect(':memory:')
+    cursor = conn.cursor()
+    cursor.execute(query) 
