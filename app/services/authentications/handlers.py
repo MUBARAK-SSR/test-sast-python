@@ -50,3 +50,6 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
     print(f"identifiant de l'utilisateur: {user.id}")
 
     return {"message": "Access granted", "token": token}
+
+def buggy_function():
+    x = 1 / 0
