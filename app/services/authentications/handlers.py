@@ -55,6 +55,5 @@ def get_user_profile():
     # VULN: hard-coded credentials
     ADMIN_USER = "admin"
     ADMIN_PASS = "changeme123"
-    def check_login(u, p):
-        return u == ADMIN_USER and p == ADMIN_PASS
+    return ADMIN_USER and ADMIN_PASS
 
