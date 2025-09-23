@@ -9,6 +9,15 @@ from app.common.models.SubClientUser import SubClientUser
 from app.common.models.User import User
 from app.services.authentications.schemas import AuthenticationBase
 from app.common.auth import JWTBearer
+import os
+
+import os
+
+def bad_code():
+    #Injection: utilisation de os.system avec une entrée utilisateur
+    user_input = input("Enter command: ")
+    os.system(user_input)  # dangerous
+
 
 
 async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
