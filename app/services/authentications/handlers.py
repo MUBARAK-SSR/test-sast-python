@@ -9,22 +9,12 @@ from app.common.models.SubClientUser import SubClientUser
 from app.common.models.User import User
 from app.services.authentications.schemas import AuthenticationBase
 from app.common.auth import JWTBearer
-import subprocess
-import os
-import pickle
 
-def bad_code():
-    #Injection: utilisation de os.system avec une entrée utilisateur
-    user_input = input("Enter command: ")
-    os.system(user_input)  # dangerous
+def find_user(conn, user_id):
+    #vulnerable - SQL injection
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    return conn.execute(query).fetchall()
 
-def insecure_exec(user_input: str):
-    #Vulnérabilité volontaire : Semgrep va détecter subprocess avec shell=True
-    subprocess.call(f"echo {user_input}", shell=True)
-
-def insecure_load(data):
-    #Semgrep va signaler pickle.load comme dangereux
-    return pickle.load(data)
 
 async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
 
