@@ -1,0 +1,43 @@
+name: Semgrep Scan (Quality Gate)
+
+on:
+  push:
+    branches: [ "main-dev" ]
+  pull_request:
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep jq
+
+      - name: Run Semgrep and fail on findings
+        run: |
+          # Run semgrep with the CI baseline rules; output JSON (semgrep returns non-zero on findings so we guard with || true)
+          semgrep --config=p/ci --json > semgrep-results.json || true
+
+          # Count findings
+          COUNT=$(jq '.results | length' semgrep-results.json)
+          echo "Semgrep findings: $COUNT"
+
+          # If findings > 0, pretty-print details and fail the job (quality gate)
+          if [ "$COUNT" -gt 0 ]; then
+            echo "Semgrep found issues — printing details:"
+            jq -r '.results[] |
+              "FILE: \(.path)\nLINE: \(.start.line // \"N/A\")\nRULE: \(.check_id)\nMESSAGE: \(.extra.message // .message)\nSEVERITY: \(.extra.severity // .severity)\n---"' semgrep-results.json
+            echo "Failing the job because Semgrep findings > 0 (acting as a quality gate)."
+            exit 1
+          else
+            echo "No Semgrep findings. Quality gate passed."
+          fi

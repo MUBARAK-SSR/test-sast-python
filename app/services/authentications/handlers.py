@@ -50,8 +50,3 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
     print(f"identifiant de l'utilisateur: {user.id}")
 
     return {"message": "Access granted", "token": token}
-
-def example():
-    x = 42  # unused variable
-    PASSWORD = "123456"  # security hotspot
-    print(PASSWORD)
