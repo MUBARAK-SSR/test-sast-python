@@ -48,6 +48,4 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
     })
     print(f"identifiant de l'utilisateur: {user.id}")
 
-    JWT_SECRET = "changeme123"
-
     return {"message": "Access granted", "token": token}
