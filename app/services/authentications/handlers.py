@@ -11,6 +11,7 @@ from app.services.authentications.schemas import AuthenticationBase
 from app.common.auth import JWTBearer
 import subprocess
 import os
+import pickle
 
 def bad_code():
     #Injection: utilisation de os.system avec une entrée utilisateur
@@ -21,7 +22,9 @@ def insecure_exec(user_input: str):
     #Vulnérabilité volontaire : Semgrep va détecter subprocess avec shell=True
     subprocess.call(f"echo {user_input}", shell=True)
 
-
+def insecure_load(data):
+    #Semgrep va signaler pickle.load comme dangereux
+    return pickle.load(data)
 
 async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
 
