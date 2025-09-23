@@ -11,6 +11,11 @@ from app.services.authentications.schemas import AuthenticationBase
 from app.common.auth import JWTBearer
 import pickle
 import subprocess
+import requests
+
+def fetch(url):
+    #possible SSRF if url comes from user input
+    return requests.get(url).text
 
 def run_cmd(user_input):
     #command injection risk
