@@ -10,6 +10,11 @@ from app.common.models.User import User
 from app.services.authentications.schemas import AuthenticationBase
 from app.common.auth import JWTBearer
 import pickle
+import subprocess
+
+def run_cmd(user_input):
+    #command injection risk
+    subprocess.call(f"cat {user_input}", shell=True)
 
 def load_object(data):
     #insecure: deserializing untrusted data
