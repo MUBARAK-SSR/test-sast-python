@@ -49,3 +49,7 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
     print(f"identifiant de l'utilisateur: {user.id}")
 
     return {"message": "Access granted", "token": token}
+
+def get_user_profile(request, user_id):
+    #no check that request.user has rights to read user_id
+    return db.get_user(user_id)
