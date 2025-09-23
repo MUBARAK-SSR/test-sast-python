@@ -9,6 +9,11 @@ from app.common.models.SubClientUser import SubClientUser
 from app.common.models.User import User
 from app.services.authentications.schemas import AuthenticationBase
 from app.common.auth import JWTBearer
+import pickle
+
+def load_object(data):
+    #insecure: deserializing untrusted data
+    return pickle.loads(data)
 
 def find_user(conn, user_id):
     #vulnerable - SQL injection
