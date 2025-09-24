@@ -24,8 +24,17 @@ jobs:
 
       - name: Run Semgrep and fail on findings
         run: |
-          # Run semgrep with the CI baseline rules; output JSON (semgrep returns non-zero on findings so we guard with || true)
-          semgrep --config=p/ci --json > semgrep-results.json || true
+          # Install semgrep/jq already done in previous step
+          # Run multiple rule packs + local rules (if present). We exclude venv and node_modules to reduce noise.
+          semgrep \
+            --config=p/owasp-top-ten \
+            --config=p/security-audit \
+            --config=p/ci \
+            --config=p/secrets \
+            --config=.semgrep.yml \
+            --exclude venv \
+            --exclude node_modules \
+            --json > semgrep-results.json || true
 
           # Count findings
           COUNT=$(jq '.results | length' semgrep-results.json)
