@@ -1,0 +1,67 @@
+name: Python SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main-dev
+  pull_request:
+    branches:
+      - main-dev
+jobs:
+  sonar:
+    name: SonarQube Scan (Python)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+      #    pip install httpx pytest pytest-cov sqlalchemy alembic psycopg2-binary dotenv fastapi uvicorn databases pytest-asyncio pydantic python-dotenv mangum python-jose[cryptography] jwt 
+
+    #  - name: Run tests with coverage
+     #   run: |
+      #    pytest --maxfail=1 --disable-warnings -q --cov=.
+
+      - name: Run SonarQube Scanner
+        uses: sonarsource/sonarqube-scan-action@v2
+        with:
+          args: >
+            -Dsonar.projectKey=test-sast-python
+            -Dsonar.host.url=http://35.92.216.5:9000
+          image: sonarsource/sonar-scanner-cli:latest
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Check Quality Gate
+        run: |
+          echo "Waiting for Quality Gate..."
+          for i in {1..10}; do
+            sleep 10
+            status=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/qualitygates/project_status?projectKey=test-sast-python" | jq -r '.projectStatus.status')
+            echo "Attempt $i: Quality Gate status = $status"
+            if [ "$status" != "IN_PROGRESS" ]; then
+              break
+            fi
+          done
+
+          if [ "$status" != "OK" ]; then
+            echo "Quality Gate failed! Here are the failing conditions:"
+            echo "Fetching detailed Quality Gate conditions..."
+            issues=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/issues/search?componentKeys=test-sast-python&types=BUG,VULNERABILITY,CODE_SMELL")
+
+            echo "$issues" | jq -r '
+              .issues[] |
+              "File: \(.component | split(\":\")[1])\nLine: \(.line // '\''N/A'\'')\nRule: \(.rule)\nMessage: \(.message)\nEffort: \(.effort // '\''N/A'\'')\nSeverity: \(.severity)\nType: \(.type)\n---"
+            '
+
+            exit 1
+          fi
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
