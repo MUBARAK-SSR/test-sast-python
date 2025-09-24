@@ -37,7 +37,7 @@ jobs:
           if [ "$COUNT" -gt 0 ]; then
             echo "Semgrep found issues — printing details:"
             jq -r '.results[] |
-              "FILE: \(.path)\nLINE: \(.start.line // \"N/A\")\nRULE: \(.check_id)\nMESSAGE: \(.extra.message // .message)\nSEVERITY: \(.extra.severity // .severity)\n---"' semgrep-results.json
+            "FILE: \(.path)\nLINE: \(.start.line // "N/A")\nRULE: \(.check_id)\nMESSAGE: \(.extra.message)\nSEVERITY: \(.extra.severity // "N/A")\n---"' semgrep-results.json
             echo "Failing the job because Semgrep findings > 0 (acting as a quality gate)."
             exit 1
           else
