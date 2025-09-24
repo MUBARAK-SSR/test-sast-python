@@ -5,7 +5,8 @@ on:
     branches:
       - main-dev
   pull_request:
-
+    branches:
+      - main-dev
 jobs:
   sonar:
     name: SonarQube Scan (Python)
@@ -35,6 +36,7 @@ jobs:
           args: >
             -Dsonar.projectKey=test-sast-python
             -Dsonar.host.url=http://35.92.216.5:9000
+          image: sonarsource/sonar-scanner-cli:latest
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Check Quality Gate
