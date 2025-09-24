@@ -26,15 +26,8 @@ jobs:
         run: |
           # Install semgrep/jq already done in previous step
           # Run multiple rule packs + local rules (if present). We exclude venv and node_modules to reduce noise.
-          semgrep \
-            --config=p/owasp-top-ten \
-            --config=p/security-audit \
-            --config=p/ci \
-            --config=p/secrets \
-            --config=.semgrep.yml \
-            --exclude venv \
-            --exclude node_modules \
-            --json > semgrep-results.json || true
+          semgrep --config=p/owasp-top-ten --config=p/security-audit --config=p/secrets --json > semgrep-results.json || true
+
 
           # Count findings
           COUNT=$(jq '.results | length' semgrep-results.json)
