@@ -31,12 +31,11 @@ jobs:
       #    pytest --maxfail=1 --disable-warnings -q --cov=.
 
       - name: Run SonarQube Scanner
-        uses: sonarsource/sonarqube-scan-action@v2
+        uses: sonarsource/sonarqube-scan-action@v3
         with:
           args: >
             -Dsonar.projectKey=test-sast-python
             -Dsonar.host.url=http://35.92.216.5:9000
-          image: sonarsource/sonar-scanner-cli:latest
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Check Quality Gate
