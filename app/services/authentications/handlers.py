@@ -3,7 +3,6 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
-import sqlite3
 
 from app.common.models.Cycle import Cycle
 from app.common.models.SubClientUser import SubClientUser
@@ -50,10 +49,3 @@ async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
     print(f"identifiant de l'utilisateur: {user.id}")
 
     return {"message": "Access granted", "token": token}
-
-def get_user_profile():
-    # VULN: hard-coded credentials
-    ADMIN_USER = "admin"
-    ADMIN_PASS = "changeme123"
-    return ADMIN_USER and ADMIN_PASS
-
