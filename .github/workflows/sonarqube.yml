@@ -61,24 +61,27 @@ jobs:
           echo "Waiting for Quality Gate..."
           for i in {1..10}; do
             sleep 10
-            status=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/qualitygates/project_status?projectKey=test-sast-python" | jq -r '.projectStatus.status')
+            status=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=test-sast-python" | jq -r '.projectStatus.status')
             echo "Attempt $i: Quality Gate status = $status"
             if [ "$status" != "IN_PROGRESS" ]; then
               break
             fi
           done
 
-          if [ "$status" != "OK" ]; then
-            echo "Quality Gate failed! Here are the failing conditions:"
-            echo "Fetching detailed Quality Gate conditions..."
-            issues=$(curl -s -u $SONAR_TOKEN: "http://35.92.216.5:9000/api/issues/search?componentKeys=test-sast-python&types=BUG,VULNERABILITY,CODE_SMELL")
+          if [ "$STATUS" != "OK" ]; then
+            echo "Quality Gate failed! Fetching issues details..."
 
-            echo "$issues" | jq -r '
-              .issues[] |
-              "File: \(.component | split(\":\")[1])\nLine: \(.line // '\''N/A'\'')\nRule: \(.rule)\nMessage: \(.message)\nEffort: \(.effort // '\''N/A'\'')\nSeverity: \(.severity)\nType: \(.type)\n---"
-            '
+            # Récupérer la liste des issues bloquantes
+            ISSUES=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/issues/search?componentKeys=$PROJECT_KEY&resolved=false&ps=500")
 
+            # Afficher chaque issue avec détails
+            echo "$ISSUES" | jq -r '.issues[] |
+              "File: \(.component)\nLine: \(.line // "N/A")\nRule: \(.rule)\nMessage: \(.message)\nSeverity: \(.severity)\n---"'
+
+            echo "Failing the job because Quality Gate failed."
             exit 1
+          else
+            echo "Quality Gate passed"
           fi
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
