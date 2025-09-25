@@ -72,8 +72,11 @@ jobs:
             echo "Quality Gate failed! Fetching issues details..."
 
             # Récupérer la liste des issues bloquantes
-            ISSUES=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/issues/search?componentKeys=$PROJECT_KEY&resolved=false&ps=500")
-
+            #ISSUES=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/issues/search?componentKeys=$PROJECT_KEY&resolved=false&ps=500")
+            ISSUES=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/issues/search?componentKeys=$PROJECT_KEY&resolved=false&sinceLeakPeriod=true&ps=500")
+            COUNT=$(echo "$ISSUES" | jq '.total')
+            echo "Total blocking issues: $COUNT"
+            
             # Afficher chaque issue avec détails
             echo "$ISSUES" | jq -r '.issues[] |
               "File: \(.component)\nLine: \(.line // "N/A")\nRule: \(.rule)\nMessage: \(.message)\nSeverity: \(.severity)\n---"'
