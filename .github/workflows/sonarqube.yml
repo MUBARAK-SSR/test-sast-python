@@ -29,15 +29,24 @@ jobs:
     #  - name: Run tests with coverage
      #   run: |
       #    pytest --maxfail=1 --disable-warnings -q --cov=.
+      - name: Install SonarScanner CLI
+        run: |
+          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner.zip -d $HOME
+          echo "$HOME/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
+          sonar-scanner --version
 
-      - name: Run SonarQube Scanner
-        uses: sonarsource/sonarqube-scan-action@v3
-        with:
-          args: >
-            -Dsonar.projectKey=test-sast-python
-            -Dsonar.host.url=http://35.92.216.5:9000
+      - name: Run SonarQube Scan
         env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=test-sast-python \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN
+            
       - name: Check Quality Gate
         run: |
           echo "Waiting for Quality Gate..."
