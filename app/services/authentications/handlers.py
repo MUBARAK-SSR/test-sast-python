@@ -15,7 +15,7 @@ import os
 def insecure_example():
     password = "super_secret_password"  # hardcoded secret
     os.system("ls -la")  # command injection risk
-    return password
+
 
 async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
 
