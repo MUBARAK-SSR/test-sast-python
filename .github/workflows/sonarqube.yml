@@ -58,11 +58,6 @@ jobs:
 
       - name: Check Quality Gate
         run: |
-
-          # Afficher la période du New Code
-          NEW_CODE_PERIOD=$(echo "$RESPONSE" | jq -r '.projectStatus.periods[0].date // "N/A"')
-          echo "New Code period since: $NEW_CODE_PERIOD"
-
           echo "Waiting for Quality Gate..."
           for i in {1..10}; do
             sleep 10
