@@ -68,7 +68,7 @@ jobs:
             fi
           done
 
-          if [ "$STATUS" != "OK" ]; then
+          if [ "$status" != "OK" ]; then
             echo "Quality Gate failed! Fetching issues details..."
 
             # Récupérer la liste des issues bloquantes
