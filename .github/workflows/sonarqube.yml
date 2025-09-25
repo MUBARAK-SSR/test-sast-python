@@ -58,10 +58,15 @@ jobs:
 
       - name: Check Quality Gate
         run: |
+
+          # Afficher la période du New Code
+          NEW_CODE_PERIOD=$(echo "$RESPONSE" | jq -r '.projectStatus.periods[0].date // "N/A"')
+          echo "New Code period since: $NEW_CODE_PERIOD"
+
           echo "Waiting for Quality Gate..."
           for i in {1..10}; do
             sleep 10
-            QUALITY_GATE=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$PROJECT_KEY")
+            QUALITY_GATE=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$projectKey")
             STATUS=$(echo "$QUALITY_GATE" | jq -r '.projectStatus.status')
             echo "Attempt $i: Quality Gate status = $STATUS"
             if [ "$STATUS" != "IN_PROGRESS" ]; then
@@ -71,7 +76,7 @@ jobs:
 
           if [ "$STATUS " != "OK" ]; then
             ISSUES=$(curl -s -u $SONAR_TOKEN: \
-              "$SONAR_HOST_URL/api/issues/search?componentKeys=$PROJECT_KEY&types=BUG,VULNERABILITY,CODE_SMELL&sinceLeakPeriod=true&ps=500")
+              "$SONAR_HOST_URL/api/issues/search?componentKeys=$PROJECT_KEY&types=BUG,VULNERABILITY,CODE_SMELL&inNewCodePeriod=true&ps=500")
 
             TOTAL=$(echo "$ISSUES" | jq -r '.total')
             echo "Total new issues: $TOTAL"
