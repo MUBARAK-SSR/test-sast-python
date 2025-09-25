@@ -61,34 +61,23 @@ jobs:
           echo "Waiting for Quality Gate..."
           for i in {1..10}; do
             sleep 10
-            RESPONSE=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$PROJECT_KEY")
-            status=$(echo "$RESPONSE" | jq -r '.projectStatus.status')
-            echo "Attempt $i: Quality Gate status = $status"
-            if [ "$status" != "IN_PROGRESS" ]; then
+            QUALITY_GATE=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$PROJECT_KEY")
+            STATUS=$(echo "$QUALITY_GATE" | jq -r '.projectStatus.status')
+            echo "Attempt $i: Quality Gate status = $STATUS"
+            if [ "$STATUS" != "IN_PROGRESS" ]; then
               break
             fi
           done
 
-          if [ "$status" != "OK" ]; then
-            echo "Quality Gate failed! Fetching issues details..."
+          if [ "$STATUS " != "OK" ]; then
+            ISSUES=$(curl -s -u $SONAR_TOKEN: \
+              "$SONAR_HOST_URL/api/issues/search?componentKeys=$PROJECT_KEY&types=BUG,VULNERABILITY,CODE_SMELL&sinceLeakPeriod=true&ps=500")
 
-            # Récupérer uniquement les issues du nouveau code (BUG, VULNERABILITY, CODE_SMELL)
-            ISSUES=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/issues/search?componentKeys=$PROJECT_KEY&resolved=false&types=BUG,VULNERABILITY,CODE_SMELL&sinceLeakPeriod=true&ps=100")
+            TOTAL=$(echo "$ISSUES" | jq -r '.total')
+            echo "Total new issues: $TOTAL"
 
-            COUNT=$(echo "$ISSUES" | jq '.total')
-            echo "Total new issues: $COUNT"
-
-            if [ "$COUNT" -gt 0 ]; then
-              echo "=== Issues in New Code ==="
-              echo "$ISSUES" | jq -r '.issues[] |
-                "File: \(.component | split(":")[1])\nLine: \(.line // "N/A")\nType: \(.type)\nRule: \(.rule)\nMessage: \(.message)\nSeverity: \(.severity)\n---"'
-            fi
-
-            echo "=== Failing Conditions ==="
-            echo "$RESPONSE" | jq -r '.projectStatus.conditions[] | select(.status!="OK") |
-              "- Metric: \(.metricKey), Value: \(.actualValue), Threshold: \(.comparator) \(.errorThreshold // .warningThreshold)"'
-
-            echo "Failing the job because Quality Gate failed."
+            # Boucle sur chaque issue
+            echo "$ISSUES" | jq -r '.issues[] | "\(.type): \(.message) [\(.severity)] at \(.component):\(.line)"'
             exit 1
           else
             echo "Quality Gate passed"
