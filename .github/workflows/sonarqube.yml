@@ -78,9 +78,7 @@ jobs:
 
             # Boucle sur chaque issue avec fallback pour line
             echo "$ISSUES" | jq -r '.issues[] |
-            "\(.type): \(.message) [\(.severity)]\nRule: \(.rule)\nFile: \(.component)\nLine: \(.line // .textRange.startLine // "N/A")\nEffort: \(.effort // "N/A")\n---"'
-
-
+            "\(.type): \(.message) [\(.severity)]\nRule: \(.rule)\nFile: \(.component)\nLine: \(.line // .textRange.startLine // "N/A")\nMessage: \(.message // "N/A")\n---"'
             exit 1
           else
             echo "Quality Gate passed"
