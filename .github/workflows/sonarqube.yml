@@ -76,8 +76,9 @@ jobs:
             TOTAL=$(echo "$ISSUES" | jq -r '.total')
             echo "Total new issues: $TOTAL"
 
-            # Boucle sur chaque issue
-            echo "$ISSUES" | jq -r '.issues[] | "\(.type): \(.message) [\(.severity)] at \(.component):\(.line)"'
+            # Boucle sur chaque issue avec fallback pour line
+            echo "$ISSUES" | jq -r '.issues[] | "\(.type): \(.message) [\(.severity)] at \(.component):\(.line // "N/A")"'
+
             exit 1
           else
             echo "Quality Gate passed"
