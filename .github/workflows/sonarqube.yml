@@ -69,12 +69,12 @@ jobs:
             QUALITY_GATE=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=test-sast-python")
             STATUS=$(echo "$QUALITY_GATE" | jq -r '.projectStatus.status')
             echo "Attempt $i: Quality Gate status = $STATUS"
-            if [ "$STATUS" != "IN_PROGRESS" && "$STATUS" != "NULL" ]; then
+            if [ "$STATUS" != "IN_PROGRESS"]; then
               break
             fi                          
           done
 
-          if [ "$STATUS " != "OK" ]; then
+          if [ "$STATUS " == "ERROR" ]; then
             ISSUES=$(curl -s -u $SONAR_TOKEN: \
               "$SONAR_HOST_URL/api/issues/search?componentKeys=test-sast-python&types=BUG,VULNERABILITY,CODE_SMELL&inNewCodePeriod=true&ps=500")
 
