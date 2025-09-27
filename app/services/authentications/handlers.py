@@ -10,12 +10,6 @@ from app.common.models.User import User
 from app.services.authentications.schemas import AuthenticationBase
 from app.common.auth import JWTBearer
 
-import os
-
-def insecure_example():
-    password = "super_secret_password"  # hardcoded secret
-    os.system("ls -la")  # command injection risk
-
 
 async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
 
