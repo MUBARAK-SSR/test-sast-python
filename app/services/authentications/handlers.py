@@ -10,7 +10,6 @@ from app.common.models.User import User
 from app.services.authentications.schemas import AuthenticationBase
 from app.common.auth import JWTBearer
 
-
 async def authenticate_user(data: AuthenticationBase, db: AsyncSession):
 
     # decoder et verifier que le token du membre est celui attendu
