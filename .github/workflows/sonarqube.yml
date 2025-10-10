@@ -61,7 +61,7 @@ jobs:
           echo "Waiting for Quality Gate..."
           for i in {1..10}; do
             sleep 10
-            QUALITY_GATE=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=test-sast-python")
+            QUALITY_GATE=$(curl -s -H "Authorization: Bearer $SONAR_TOKEN" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=test-sast-python")
             STATUS=$(echo "$QUALITY_GATE" | jq -r '.projectStatus.status')
             echo "Attempt $i: Quality Gate status = $STATUS"
             if [ "$STATUS" != "IN_PROGRESS" ]; then
@@ -70,7 +70,7 @@ jobs:
           done
 
           if [ "$STATUS" == "ERROR" ]; then
-            ISSUES=$(curl -s -u $SONAR_TOKEN: \
+            ISSUES=$(curl -s -H "Authorization: Bearer $SONAR_TOKEN" \
               "$SONAR_HOST_URL/api/issues/search?componentKeys=test-sast-python&types=BUG,VULNERABILITY,CODE_SMELL&inNewCodePeriod=true&ps=500")
 
             TOTAL=$(echo "$ISSUES" | jq -r '.total')
